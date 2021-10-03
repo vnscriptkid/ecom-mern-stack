@@ -1,6 +1,12 @@
 import { Container, Icon, Image, Menu } from "semantic-ui-react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
+
+import Nprogress from "nprogress";
+
+Router.onRouteChangeStart = () => Nprogress.start();
+Router.onRouteChangeComplete = () => Nprogress.done();
+Router.onRouteChangeError = () => Nprogress.done();
 
 function Header() {
   const user = true;
