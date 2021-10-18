@@ -1,8 +1,7 @@
 import axios from "axios";
-import { useEffect } from "react";
 
 function Home({ products }) {
-  console.log("**Products: ", products);
+  console.log("**Products: ", products.length);
 
   return <>home</>;
 }
