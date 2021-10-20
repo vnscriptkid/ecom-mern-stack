@@ -1,3 +1,10 @@
+## Mongodb
+#### mongoimport
+https://docs.mongodb.com/database-tools/mongoimport/#installation
+```console
+mongoimport --uri "mongodb://localhost:27017/react-reserve" --type=json --file="./static/products.json" --jsonArray
+```
+
 ## Common errors
 #### oops
 ```json

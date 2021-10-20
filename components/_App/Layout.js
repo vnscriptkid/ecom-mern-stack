@@ -8,7 +8,8 @@ function Layout({ children }) {
   return (
     <>
       <Head>
-        <HeadContent />
+        {/* TODO: Uncomment this line, fix issue */}
+        {/* <HeadContent /> */}
         {/* Stylesheets */}
         <link rel="stylesheet" type="text/css" href="/static/styles.css" />
         <link rel="stylesheet" type="text/css" href="/static/nprogress.css" />
