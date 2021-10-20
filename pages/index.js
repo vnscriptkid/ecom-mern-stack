@@ -1,9 +1,8 @@
 import axios from "axios";
+import ProductList from "../components/Index/ProductList";
 
 function Home({ products }) {
-  console.log("**Products: ", products.length);
-
-  return <>home</>;
+  return <ProductList products={products} />;
 }
 
 Home.getInitialProps = async () => {
