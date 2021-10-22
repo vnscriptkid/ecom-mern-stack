@@ -9,6 +9,9 @@ import {
   Image,
   Message,
 } from "semantic-ui-react";
+import axios from "axios";
+
+import baseUrl from "../utils/baseUrl";
 
 const INITIAL_PRODUCT = {
   name: "",
@@ -22,6 +25,7 @@ function CreateProduct() {
 
   const [mediaPreview, setMediaPreview] = useState("");
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -42,11 +46,31 @@ function CreateProduct() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: post this product
-    console.log(product);
+    setLoading(true);
+
+    const mediaUrl = await handleImageUpload();
+
+    const { description, name, price } = product;
+
+    const payload = { name, description, price, mediaUrl };
+
+    await axios.post(`${baseUrl}/api/product`, payload);
 
     setSuccess(true);
+    setLoading(false);
     setProduct(INITIAL_PRODUCT);
+  };
+
+  const handleImageUpload = async () => {
+    const formData = new FormData();
+
+    formData.append("file", product.media);
+    formData.append("upload_preset", "reactreserve");
+    formData.append("cloud_name", "vnscriptkid");
+
+    const res = await axios.post(process.env.CLOUDINARY_URL, formData);
+
+    return res.data.url;
   };
 
   return (
@@ -55,7 +79,7 @@ function CreateProduct() {
         <Icon name="add" color="orange" />
         Create New Product
       </Header>
-      <Form success={success} onSubmit={handleSubmit}>
+      <Form loading={loading} success={success} onSubmit={handleSubmit}>
         <Message
           success
           icon="check"
