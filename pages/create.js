@@ -12,6 +12,7 @@ import {
 import axios from "axios";
 
 import baseUrl from "../utils/baseUrl";
+import catchErrors from "../utils/catchErrors";
 
 const INITIAL_PRODUCT = {
   name: "",
@@ -27,6 +28,7 @@ function CreateProduct() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [allValid, setAllValid] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const validated = Object.values(product).every((value) => Boolean(value));
@@ -55,17 +57,23 @@ function CreateProduct() {
     e.preventDefault();
     setLoading(true);
 
-    const mediaUrl = await handleImageUpload();
+    try {
+      const mediaUrl = await handleImageUpload();
 
-    const { description, name, price } = product;
+      const { description, name, price } = product;
 
-    const payload = { name, description, price, mediaUrl };
+      const payload = { name: "", description, price, mediaUrl };
 
-    await axios.post(`${baseUrl}/api/product`, payload);
+      await axios.post(`${baseUrl}/api/product`, payload, { timeout: 5000 });
 
-    setSuccess(true);
-    setLoading(false);
-    setProduct(INITIAL_PRODUCT);
+      setSuccess(true);
+
+      setProduct(INITIAL_PRODUCT);
+    } catch (err) {
+      catchErrors(err, setError);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleImageUpload = async () => {
@@ -86,13 +94,19 @@ function CreateProduct() {
         <Icon name="add" color="orange" />
         Create New Product
       </Header>
-      <Form loading={loading} success={success} onSubmit={handleSubmit}>
+      <Form
+        loading={loading}
+        success={success}
+        error={Boolean(error)}
+        onSubmit={handleSubmit}
+      >
         <Message
           success
           icon="check"
           header="Success!"
           content="Your product has been posted"
         />
+        <Message error header="Ooops!" content={error} />
         <Form.Group widths="equal">
           <Form.Field
             control={Input}
