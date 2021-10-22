@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Form,
@@ -26,6 +26,13 @@ function CreateProduct() {
   const [mediaPreview, setMediaPreview] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [allValid, setAllValid] = useState(false);
+
+  useEffect(() => {
+    const validated = Object.values(product).every((value) => Boolean(value));
+
+    setAllValid(validated);
+  }, [product]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -131,6 +138,7 @@ function CreateProduct() {
           icon="pencil alternate"
           content="Submit"
           type="submit"
+          disabled={!allValid || loading}
         />
       </Form>
     </>
