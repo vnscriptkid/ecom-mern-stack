@@ -62,7 +62,7 @@ function CreateProduct() {
 
       const { description, name, price } = product;
 
-      const payload = { name: "", description, price, mediaUrl };
+      const payload = { name, description, price, mediaUrl };
 
       await axios.post(`${baseUrl}/api/product`, payload, { timeout: 5000 });
 
