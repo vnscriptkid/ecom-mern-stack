@@ -9,7 +9,7 @@ Router.onRouteChangeComplete = () => Nprogress.done();
 Router.onRouteChangeError = () => Nprogress.done();
 
 function Header() {
-  const user = true;
+  const user = false;
 
   const router = useRouter();
 
