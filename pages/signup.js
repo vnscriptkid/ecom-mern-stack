@@ -5,6 +5,7 @@ import axios from "axios";
 
 import baseUrl from "../utils/baseUrl";
 import catchErrors from '../utils/catchErrors';
+import { handleLogin } from '../utils/auth';
 
 const INITIAL_USER = {
   name: "",
@@ -38,9 +39,14 @@ function Signup() {
     setLoading(true);
     setError('');
     try {
-      // const url = `${baseUrl}/api/signup`;
-      // await axios.post(url, user);
-      console.log(user);
+      const url = `${baseUrl}/api/users`;
+
+      const payload = { ...user }
+
+      const res = await axios.post(url, payload);
+
+      handleLogin(res.data);
+      
       setSuccess(true);
     } catch (e) {
       catchErrors(e, setError);
