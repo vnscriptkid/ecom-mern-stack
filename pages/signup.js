@@ -1,9 +1,10 @@
 import { Button, Form, Icon, Message, Segment } from "semantic-ui-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 import baseUrl from "../utils/baseUrl";
-import axios from "axios";
+import catchErrors from '../utils/catchErrors';
 
 const INITIAL_USER = {
   name: "",
@@ -15,6 +16,8 @@ function Signup() {
   const [user, setUser] = useState(INITIAL_USER);
   const [success, setSuccess] = useState(false);
   const [allValid, setAllValid] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const formValidated = Object.values(user).every((value) => Boolean(value));
@@ -32,10 +35,18 @@ function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // const url = `${baseUrl}/api/signup`;
-    // await axios.post(url, user);
-    console.log(user);
-    setSuccess(true);
+    setLoading(true);
+    setError('');
+    try {
+      // const url = `${baseUrl}/api/signup`;
+      // await axios.post(url, user);
+      console.log(user);
+      setSuccess(true);
+    } catch (e) {
+      catchErrors(e, setError);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,7 +58,14 @@ function Signup() {
         content="Create a new account"
         color="teal"
       />
-      <Form onSubmit={handleSubmit}>
+      <Form loading={loading} error={Boolean(error)} success={success} onSubmit={handleSubmit}>
+      <Message
+          success
+          icon="check"
+          header="Success!"
+          content="Your account has been created"
+        />
+        <Message error header="Ooops!" content={error} />
         <Segment>
           <Form.Input
             fluid
@@ -82,7 +100,7 @@ function Signup() {
             onChange={handleChange}
           />
           <Button
-            disabled={!allValid}
+            disabled={!allValid || loading}
             icon="signup"
             type="submit"
             color="orange"
