@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import baseUrl from "../utils/baseUrl";
-import catchErrors from '../utils/catchErrors';
+import catchErrors from "../utils/catchErrors";
+import { handleLogin } from "../utils/auth";
 
 const INITIAL_USER = {
   email: "",
@@ -15,7 +16,7 @@ function Login() {
   const [user, setUser] = useState(INITIAL_USER);
   const [success, setSuccess] = useState(false);
   const [allValid, setAllValid] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -35,11 +36,15 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      // const url = `${baseUrl}/api/signup`;
-      // await axios.post(url, user);
-      console.log(user);
+      const url = `${baseUrl}/api/login`;
+
+      const payload = { ...user };
+
+      const res = await axios.post(url, payload);
+      handleLogin(res.data);
+
       setSuccess(true);
     } catch (e) {
       catchErrors(e, setError);
@@ -57,8 +62,13 @@ function Login() {
         content="Log in with email and password"
         color="blue"
       />
-      <Form loading={loading} error={Boolean(error)} success={success} onSubmit={handleSubmit}>
-      <Message
+      <Form
+        loading={loading}
+        error={Boolean(error)}
+        success={success}
+        onSubmit={handleSubmit}
+      >
+        <Message
           success
           icon="check"
           header="Success!"
