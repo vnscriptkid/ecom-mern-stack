@@ -1,6 +1,6 @@
 import { Button, Form, Icon, Message, Segment } from "semantic-ui-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import baseUrl from "../utils/baseUrl";
 import axios from "axios";
@@ -14,6 +14,12 @@ const INITIAL_USER = {
 function Signup() {
   const [user, setUser] = useState(INITIAL_USER);
   const [success, setSuccess] = useState(false);
+  const [allValid, setAllValid] = useState(false);
+
+  useEffect(() => {
+    const formValidated = Object.values(user).every((value) => Boolean(value));
+    setAllValid(formValidated);
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,7 +81,13 @@ function Signup() {
             user={user.password}
             onChange={handleChange}
           />
-          <Button icon="signup" type="submit" color="orange" content="Signup" />
+          <Button
+            disabled={!allValid}
+            icon="signup"
+            type="submit"
+            color="orange"
+            content="Signup"
+          />
         </Segment>
       </Form>
       <Message attached="bottom" warning>
