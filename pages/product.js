@@ -2,13 +2,12 @@ import axios from "axios";
 import ProductSummary from "../components/Product/ProductSummary";
 import ProductAttributes from "../components/Product/ProductAttributes";
 import baseUrl from "../utils/baseUrl";
-import { hasUserRole } from "../utils/auth";
 
 function Product({ product, user }) {
   return (
     <>
-      <ProductSummary {...product} />
-      <ProductAttributes {...product} isNonUser={!hasUserRole(user)} />
+      <ProductSummary {...product} loggedIn={Boolean(user)} />
+      <ProductAttributes {...product} user={user} />
     </>
   );
 }
