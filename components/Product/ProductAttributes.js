@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { Button, Header, Modal } from "semantic-ui-react";
 import baseUrl from "../../utils/baseUrl";
 
-function ProductAttributes({ description, _id }) {
+function ProductAttributes({ description, _id, isNonUser }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const router = useRouter();
@@ -23,12 +23,14 @@ function ProductAttributes({ description, _id }) {
     <>
       <Header as="h3">About this product </Header>
       <p>{description}</p>
-      <Button
-        onClick={() => setModalOpen(true)}
-        icon="trash alternate outline"
-        color="red"
-        content="Delete Product"
-      />
+      {isNonUser && (
+        <Button
+          onClick={() => setModalOpen(true)}
+          icon="trash alternate outline"
+          color="red"
+          content="Delete Product"
+        />
+      )}
       <Modal open={modalOpen} dimmer="blurring">
         <Modal.Header>Confirm Delete</Modal.Header>
         <Modal.Content>

@@ -16,3 +16,16 @@ export const handleRedirect = (ctx, destRoute) => {
     Router.push(destRoute);
   }
 };
+
+export const handleLogout = () => {
+  Cookie.remove("token");
+  Router.push("/login");
+};
+
+export const hasNonUserRole = (user) => ["admin", "root"].includes(user.role);
+
+export const hasUserRole = (user) => user.role === "user";
+
+export const nonUserRoutes = ["/create"];
+
+export const authRoutes = ["/account", "/cart"];

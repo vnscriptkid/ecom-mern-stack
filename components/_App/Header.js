@@ -3,6 +3,7 @@ import Link from "next/link";
 import Router, { useRouter } from "next/router";
 
 import Nprogress from "nprogress";
+import { handleLogout, hasNonUserRole } from "../../utils/auth";
 
 Router.onRouteChangeStart = () => Nprogress.start();
 Router.onRouteChangeComplete = () => Nprogress.done();
@@ -34,7 +35,7 @@ function Header({ user }) {
           </Menu.Item>
         </Link>
 
-        {user && (
+        {user && hasNonUserRole(user) && (
           <Link href="/create">
             <Menu.Item header active={isActive("/create")}>
               <Icon name="add square" size="large" />
@@ -52,7 +53,7 @@ function Header({ user }) {
               </Menu.Item>
             </Link>
 
-            <Menu.Item header>
+            <Menu.Item header onClick={handleLogout}>
               <Icon name="sign out" size="large" />
               Logout
             </Menu.Item>
