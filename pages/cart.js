@@ -6,9 +6,11 @@ import CartSummary from "../components/Cart/CartSummary";
 import baseUrl from "../utils/baseUrl";
 
 function Cart({ user, products = [] }) {
+  console.log({ products });
+
   return (
     <Segment>
-      <CartItemList user={Boolean(user)} />
+      <CartItemList user={Boolean(user)} cartItems={products} />
       <CartSummary />
     </Segment>
   );
