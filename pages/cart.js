@@ -1,14 +1,36 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 import { parseCookies } from "nookies";
+import { useState } from "react";
 import { Segment } from "semantic-ui-react";
 import CartItemList from "../components/Cart/CartItemList";
 import CartSummary from "../components/Cart/CartSummary";
 import baseUrl from "../utils/baseUrl";
 
-function Cart({ user, cartItems = [] }) {
+function Cart({ user, initialCartItems = [] }) {
+  const [cartItems, setCartItems] = useState(initialCartItems);
+
+  const handleRemoveFromCart = async (productId) => {
+    // console.log("removing: ", productId);
+    const config = { headers: { Authorization: Cookies.get("token") } };
+
+    const url = `${baseUrl}/api/cart?productId=${productId}`;
+
+    try {
+      const res = await axios.delete(url, config);
+      setCartItems(res.data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <Segment>
-      <CartItemList user={Boolean(user)} cartItems={cartItems} />
+      <CartItemList
+        handleRemoveFromCart={handleRemoveFromCart}
+        user={Boolean(user)}
+        cartItems={cartItems}
+      />
       <CartSummary cartItems={cartItems} />
     </Segment>
   );
@@ -28,7 +50,7 @@ Cart.getInitialProps = async (ctx) => {
 
     const cartItems = res.data;
 
-    return { cartItems };
+    return { initialCartItems: cartItems };
   } catch (e) {
     console.error(e);
     return {};

@@ -16,6 +16,9 @@ export default (req, res) => {
     case "PUT":
       handlePutReq(req, res);
       break;
+    case "DELETE":
+      handleDeleteReq(req, res);
+      break;
     default:
       res.status(405).send(`Method is not allowed`);
   }
@@ -111,6 +114,44 @@ async function handlePutReq(req, res) {
       );
     }
     res.status(200).send(`Cart updated`);
+  } catch (e) {
+    return res.status(500).send(`Error while updating cart`);
+  }
+}
+
+async function handleDeleteReq(req, res) {
+  const { productId } = req.query;
+
+  if (!productId) {
+    return res.status(422).send(`Product id is missing`);
+  }
+
+  if (!("authorization" in req.headers))
+    return res.status(401).send(`No auth token in headers.`);
+
+  let userId;
+  try {
+    // Verify token
+    const token = req.headers.authorization;
+
+    const jwtPayload = jwt.verify(token, process.env.JWT_SECRET);
+
+    userId = jwtPayload.userId;
+  } catch (e) {
+    return res.status(401).send(`Token invalid.`);
+  }
+
+  try {
+    const cart = await Cart.findOneAndUpdate(
+      { user: userId },
+      { $pull: { products: { product: productId } } },
+      { new: true }
+    ).populate({
+      path: "products.product",
+      model: "Product",
+    });
+
+    res.status(200).send(cart.products);
   } catch (e) {
     return res.status(500).send(`Error while updating cart`);
   }
