@@ -5,13 +5,11 @@ import CartItemList from "../components/Cart/CartItemList";
 import CartSummary from "../components/Cart/CartSummary";
 import baseUrl from "../utils/baseUrl";
 
-function Cart({ user, products = [] }) {
-  console.log({ products });
-
+function Cart({ user, cartItems = [] }) {
   return (
     <Segment>
-      <CartItemList user={Boolean(user)} cartItems={products} />
-      <CartSummary />
+      <CartItemList user={Boolean(user)} cartItems={cartItems} />
+      <CartSummary cartItems={cartItems} />
     </Segment>
   );
 }
@@ -28,9 +26,9 @@ Cart.getInitialProps = async (ctx) => {
   try {
     const res = await axios.get(url, config);
 
-    const products = res.data;
+    const cartItems = res.data;
 
-    return { products };
+    return { cartItems };
   } catch (e) {
     console.error(e);
     return {};
