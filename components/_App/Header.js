@@ -8,9 +8,7 @@ Router.onRouteChangeStart = () => Nprogress.start();
 Router.onRouteChangeComplete = () => Nprogress.done();
 Router.onRouteChangeError = () => Nprogress.done();
 
-function Header() {
-  const user = false;
-
+function Header({ user }) {
   const router = useRouter();
 
   const isActive = (route) => route === router.pathname;
