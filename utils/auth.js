@@ -19,6 +19,7 @@ export const handleRedirect = (ctx, destRoute) => {
 
 export const handleLogout = () => {
   Cookie.remove("token");
+  window.localStorage.setItem("logout", Date.now());
   Router.push("/login");
 };
 
