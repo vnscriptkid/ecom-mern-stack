@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { ThreeDSecure } from "stripe/lib/resources";
 
 const { ObjectId, Number, String } = mongoose.Schema.Types;
 
