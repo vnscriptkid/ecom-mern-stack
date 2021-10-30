@@ -20,7 +20,7 @@ function Layout({ children, user }) {
         <title>ReactReserve</title>
       </Head>
       <Header user={Boolean(user)} />
-      <Container text style={{ paddingTop: "1em" }}>
+      <Container text style={{ paddingTop: "1em", paddingBottom: "1em" }}>
         {children}
       </Container>
     </>
