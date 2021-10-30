@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Cookies from "js-cookie";
 import baseUrl from "../../utils/baseUrl";
 import axios from "axios";
@@ -51,11 +51,40 @@ function AccountPermissions() {
   );
 }
 
-function UserPermission({ name, email, createdAt, updatedAt, role }) {
+function UserPermission({ _id, name, email, createdAt, updatedAt, role }) {
+  const [isAdmin, setIsAdmin] = useState(role === "admin");
+  const firstRender = useRef(true);
+
+  function handleToggle() {
+    setIsAdmin((prevState) => !prevState);
+  }
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    toggleRoleAsync();
+  }, [isAdmin]);
+
+  async function toggleRoleAsync() {
+    const token = Cookies.get("token");
+    const config = { headers: { Authorization: token } };
+
+    const url = `${baseUrl}/api/users`;
+    try {
+      const payload = { _id, role: isAdmin ? "admin" : "user" };
+      const res = await axios.put(url, payload, config);
+      console.log(res.data);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   return (
     <Table.Row>
       <Table.Cell>
-        <Checkbox toggle />
+        <Checkbox onChange={handleToggle} checked={isAdmin} toggle />
       </Table.Cell>
       <Table.Cell>{name}</Table.Cell>
       <Table.Cell>{email}</Table.Cell>

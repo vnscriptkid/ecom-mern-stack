@@ -7,7 +7,6 @@ import AccountPermissions from "../components/Account/AccountPermissions";
 import baseUrl from "../utils/baseUrl";
 
 function Account({ user, orders }) {
-  console.log({ orders });
   return (
     <>
       <AccountHeader {...user} />
