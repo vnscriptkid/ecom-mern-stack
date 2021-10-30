@@ -69,9 +69,10 @@ export default async (req, res) => {
 
   try {
     // find the cart of this user
-    const cart = await Cart.findOne({ user: userId }).populate(
-      "products.product"
-    );
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: "products.product",
+      model: "Product",
+    });
 
     if (!cart) return res.status(404).send(`Cart not found`);
 
