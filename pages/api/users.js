@@ -1,7 +1,20 @@
 import jwt from "jsonwebtoken";
 import User from "../../models/User";
 
-export default async (req, res) => {
+export default (req, res) => {
+  switch (req.method) {
+    case "GET":
+      handleGetReq(req, res);
+      break;
+    case "PUT":
+      handlePutReq(req, res);
+      break;
+    default:
+      res.status(405).send(`Method is not allowed.`);
+  }
+};
+
+async function handleGetReq(req, res) {
   if (!("authorization" in req.headers))
     return res.status(401).send(`No auth token in headers.`);
 
@@ -24,4 +37,31 @@ export default async (req, res) => {
     console.error(e);
     res.status(500).send("Server error getting users");
   }
-};
+}
+
+async function handlePutReq(req, res) {
+  if (!("authorization" in req.headers))
+    return res.status(401).send(`No auth token in headers.`);
+
+  let userId;
+  try {
+    // Verify token
+    const token = req.headers.authorization;
+
+    const jwtPayload = jwt.verify(token, process.env.JWT_SECRET);
+
+    userId = jwtPayload.userId;
+  } catch (e) {
+    return res.status(401).send(`Token invalid.`);
+  }
+
+  const { _id, role } = req.body;
+
+  try {
+    await User.findOneAndUpdate({ _id }, { role });
+    res.status(200).send(`Role updated.`);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send(`Server error while updating user role.`);
+  }
+}
