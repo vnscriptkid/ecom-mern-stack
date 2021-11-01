@@ -1,7 +1,9 @@
 import jwt from "jsonwebtoken";
 import User from "../../models/User";
+import { ApiError } from "../../utils/apiErrors";
+import { apiHandler } from "../../utils/apiHandler";
 
-export default (req, res) => {
+export default apiHandler((req, res) => {
   switch (req.method) {
     case "GET":
       handleGetReq(req, res);
@@ -10,58 +12,31 @@ export default (req, res) => {
       handlePutReq(req, res);
       break;
     default:
-      res.status(405).send(`Method is not allowed.`);
+      throw new ApiError(`Method is not allowed.`);
   }
-};
+});
 
 async function handleGetReq(req, res) {
-  if (!("authorization" in req.headers))
-    return res.status(401).send(`No auth token in headers.`);
-
-  let userId;
   try {
-    // Verify token
-    const token = req.headers.authorization;
-
-    const jwtPayload = jwt.verify(token, process.env.JWT_SECRET);
-
-    userId = jwtPayload.userId;
-  } catch (e) {
-    return res.status(401).send(`Token invalid.`);
-  }
-
-  try {
-    const users = await User.find({ _id: { $ne: userId } });
-    res.status(200).json(users);
+    const users = await User.find({ _id: { $ne: req.user._id } });
+    return res.status(200).json(users);
   } catch (e) {
     console.error(e);
-    res.status(500).send("Server error getting users");
+    throw new ApiError(500, `Server error getting users`);
   }
 }
 
 async function handlePutReq(req, res) {
-  if (!("authorization" in req.headers))
-    return res.status(401).send(`No auth token in headers.`);
-
-  let userId;
-  try {
-    // Verify token
-    const token = req.headers.authorization;
-
-    const jwtPayload = jwt.verify(token, process.env.JWT_SECRET);
-
-    userId = jwtPayload.userId;
-  } catch (e) {
-    return res.status(401).send(`Token invalid.`);
-  }
-
   const { _id, role } = req.body;
+
+  if (!_id || !role)
+    throw new ApiError(`Missing one or more fields in body request.`);
 
   try {
     await User.findOneAndUpdate({ _id }, { role });
-    res.status(200).send(`Role updated.`);
+    return res.status(200).send(`Role updated.`);
   } catch (e) {
     console.error(e);
-    res.status(500).send(`Server error while updating user role.`);
+    throw new ApiError(500, `Server error while updating user role.`);
   }
 }

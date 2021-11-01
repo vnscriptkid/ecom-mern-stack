@@ -5,6 +5,7 @@ import faker from "faker";
 import bcrypt from "bcrypt";
 
 import connectDb from "./connectDb";
+import Cart from "../models/Cart";
 
 async function generateUsers(amount = 10) {
   const users = [];
@@ -20,6 +21,12 @@ async function generateUsers(amount = 10) {
   return users;
 }
 
+async function generateCarts(users) {
+  for (let user of users) {
+    await new Cart({ user: user._id }).save();
+  }
+}
+
 async function feed() {
   try {
     await connectDb();
@@ -28,7 +35,9 @@ async function feed() {
     await User.deleteMany();
     // seeding
     await Product.insertMany(products);
-    await User.insertMany(await generateUsers());
+    const users = await generateUsers();
+    await User.insertMany(users);
+    await generateCarts(users);
     process.exit(0);
   } catch (e) {
     console.error(e);

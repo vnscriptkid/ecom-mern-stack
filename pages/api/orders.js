@@ -1,27 +1,14 @@
 import Order from "../../models/Order";
 import connectDb from "../../utils/connectDb";
 import jwt from "jsonwebtoken";
+import { apiHandler } from "../../utils/apiHandler";
+import { ApiError } from "../../utils/apiErrors";
 
 connectDb();
 
-export default async (req, res) => {
-  if (!("authorization" in req.headers))
-    return res.status(401).send(`No auth token in headers.`);
-
-  let userId;
+export default apiHandler(async (req, res) => {
   try {
-    // Verify token
-    const token = req.headers.authorization;
-
-    const jwtPayload = jwt.verify(token, process.env.JWT_SECRET);
-
-    userId = jwtPayload.userId;
-  } catch (e) {
-    return res.status(401).send(`Token invalid.`);
-  }
-
-  try {
-    const orders = await Order.find({ user: userId }).populate({
+    const orders = await Order.find({ user: req.user._id }).populate({
       path: "products.product",
       model: "Product",
     });
@@ -29,6 +16,6 @@ export default async (req, res) => {
     return res.status(200).json(orders);
   } catch (e) {
     console.error(e);
-    res.status(500).send("Server error getting orders");
+    throw new ApiError(500, `Server error getting orders`);
   }
-};
+});

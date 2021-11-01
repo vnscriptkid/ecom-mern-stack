@@ -8,6 +8,8 @@ import calculateCartTotal from "../../utils/calculateCartTotal";
 import Stripe from "stripe";
 import uuidv4 from "uuid/v4";
 import Order from "../../models/Order";
+import { apiHandler } from "../../utils/apiHandler";
+import { ApiError } from "../../utils/apiErrors";
 
 connectDb();
 
@@ -46,35 +48,19 @@ connectDb();
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-export default async (req, res) => {
-  if (!("authorization" in req.headers))
-    return res.status(401).send(`No auth token in headers.`);
-
+export default apiHandler(async (req, res) => {
   const { paymentData } = req.body;
 
-  if (!paymentData)
-    return res.status(422).send(`paymentData missing in req body.`);
-
-  // Verify token
-  const token = req.headers.authorization;
-
-  let userId = null;
-  try {
-    const jwtPayload = jwt.verify(token, process.env.JWT_SECRET);
-
-    userId = jwtPayload.userId;
-  } catch (e) {
-    res.status(401).send(`Token invalid.`);
-  }
+  if (!paymentData) throw new ApiError(422, `paymentData missing in req body`);
 
   try {
     // find the cart of this user
-    const cart = await Cart.findOne({ user: userId }).populate({
+    const cart = await Cart.findOne({ user: req.user._id }).populate({
       path: "products.product",
       model: "Product",
     });
 
-    if (!cart) return res.status(404).send(`Cart not found`);
+    if (!cart) throw new ApiError(404, `Cart not found`);
 
     // calculate total from items in cart
     const { cartTotal, stripeTotal } = calculateCartTotal(cart.products);
@@ -113,7 +99,7 @@ export default async (req, res) => {
 
     // Add new order
     await new Order({
-      user: userId,
+      user: req.user._id,
       email: paymentData.email,
       total: cartTotal,
       products: cart.products,
@@ -122,9 +108,9 @@ export default async (req, res) => {
     // Clear products in cart
     await Cart.findOneAndUpdate({ _id: cart._id }, { $set: { products: [] } });
 
-    res.status(200).send("Checkout successful");
+    return res.status(200).send("Checkout successful");
   } catch (e) {
     console.error(e);
-    res.status(500).send(`Error while checkout`);
+    throw new ApiError(500, `Error while checking out`);
   }
-};
+});
