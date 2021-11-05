@@ -8,10 +8,12 @@ connectDb();
 
 export default apiHandler(async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).populate({
-      path: "products.product",
-      model: "Product",
-    });
+    const orders = await Order.find({ user: req.user._id })
+      .sort({ createdAt: "desc" }) // latest first
+      .populate({
+        path: "products.product",
+        model: "Product",
+      });
 
     return res.status(200).json(orders);
   } catch (e) {

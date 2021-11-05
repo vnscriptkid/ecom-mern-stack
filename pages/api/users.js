@@ -18,7 +18,9 @@ export default apiHandler((req, res) => {
 
 async function handleGetReq(req, res) {
   try {
-    const users = await User.find({ _id: { $ne: req.user._id } });
+    const users = await User.find({ _id: { $ne: req.user._id } }).sort({
+      role: "asc",
+    });
     return res.status(200).json(users);
   } catch (e) {
     console.error(e);
