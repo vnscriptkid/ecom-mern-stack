@@ -1,3 +1,4 @@
+import Cart from "../../models/Cart";
 import Product from "../../models/Product";
 import { ApiError } from "../../utils/apiErrors";
 
@@ -61,6 +62,11 @@ async function handleDeleteReq(req, res) {
     const { _id } = req.query;
 
     await Product.findByIdAndDelete({ _id });
+
+    await Cart.updateMany(
+      { "products.product": _id },
+      { $pull: { products: { product: _id } } }
+    );
 
     return res.status(204).json({});
   } catch (e) {
